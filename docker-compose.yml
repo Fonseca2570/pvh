@@ -1,0 +1,103 @@
+version: "3.9"
+
+volumes:
+  db_data: {}
+
+networks:
+  sword_net:
+    driver: bridge
+
+services:
+    db:
+      image: mysql:5.7
+      container_name: "sword_db"
+      volumes:
+        - db_data:/var/lib/mysql
+        - ./init.sql:/data/application/init.sql
+      restart: always
+      ports:
+        - 3306:3306
+      networks:
+        - sword_net
+      command: --init-file /data/application/init.sql
+      environment:
+        MYSQL_ROOT_PASSWORD: password
+        MYSQL_DATABASE: sword
+        MYSQL_USER: sword
+        MYSQL_PASSWORD: password
+
+    rabbitmq:
+      image: "rabbitmq:3-management"
+      container_name: "sword_rabbitmq"
+      hostname: "rabbit1"
+      depends_on:
+        - db
+      environment:
+        RABBITMQ_ERLANG_COOKIE: "SWORDRULES"
+        RABBITMQ_DEFAULT_USER: sword
+        RABBITMQ_DEFAULT_PASS: password
+        RABBITMQ_DEFAULT_VHOST: "/"
+      restart: on-failure
+      ports:
+        - 5672:5672
+        - 15672:15672
+      networks:
+        - sword_net
+
+    notifications:
+      build:
+        context: ./notifications
+        dockerfile: Dockerfile
+      container_name: "notifications"
+      depends_on:
+        - rabbitmq
+      restart: on-failure
+      ports:
+        - 8801:8801
+      networks:
+        - sword_net
+      command: go run main.go
+
+    auth:
+      build:
+        context: ./auth
+        dockerfile: Dockerfile
+      container_name: "auth"
+      depends_on:
+        - rabbitmq
+      restart: on-failure
+      ports:
+        - 8802:8802
+      networks:
+        - sword_net
+      command: go run main.go
+
+
+    tasks:
+      build:
+        context: ./tasks
+        dockerfile: Dockerfile
+      container_name: "tasks"
+      depends_on:
+        - rabbitmq
+      restart: on-failure
+      ports:
+        - 8800:8800
+      networks:
+        - sword_net
+      command: go run main.go
+
+    gateway:
+      build:
+        context: ./gateway
+        dockerfile: Dockerfile
+      container_name: "gateway"
+      depends_on:
+        - rabbitmq
+      restart: on-failure
+      ports:
+        - 80:8080
+      networks:
+        - sword_net
+      command: go run main.go
+      
