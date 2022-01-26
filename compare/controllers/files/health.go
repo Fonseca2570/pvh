@@ -1,23 +1,55 @@
 package files
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
-)
-
-const (
-	backup = "backup.json"
-	current = "current.json"
+	"net/http"
+	"os"
 )
 
 func Health(c *gin.Context) {
+	files, err := CheckFiles()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
 
-
-
-	//c.JSON(http.StatusOK, AliveResponse{
-	//	"Alive",
-	//})
+	c.JSON(http.StatusOK, files)
 }
 
-func CheckIfFileExists(path string) bool{
-	return false
+func CheckIfFileExists(name string) (bool, error) {
+	_, err := os.Stat(name)
+	if err == nil {
+		return true, nil
+	}
+	if errors.Is(err, os.ErrNotExist) {
+		return false, nil
+	}
+	return false, err
+}
+
+func CheckFiles() (FileExists, error) {
+
+	backupExists, err := CheckIfFileExists(backupFile)
+	if err != nil {
+		return FileExists{}, err
+	}
+
+	currentExists, err := CheckIfFileExists(currentFile)
+	if err != nil {
+		return FileExists{}, err
+	}
+
+	var files = FileExists{[]File{
+		{
+			Name:   backup,
+			Exists: backupExists,
+		},
+		{
+			Name:   current,
+			Exists: currentExists,
+		},
+	}}
+
+	return files, nil
 }

@@ -1,9 +1,10 @@
 package validator
 
-import "github.com/go-playground/validator/v10"
+import (
+	"compare/globals"
+	"github.com/go-playground/validator/v10"
+)
 
-var Validate *validator.Validate
-
-func Init() {
-	Validate = validator.New()
+func Init(App *globals.Application) {
+	App.Validator = validator.New()
 }

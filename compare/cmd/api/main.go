@@ -6,8 +6,10 @@ import (
 	"compare/validator"
 )
 
+
 func main() {
-	globals.Init()
-	validator.Init()
+	globals.Init(&globals.App)
+	validator.Init(&globals.App)
+
 	router.StartApplication()
 }

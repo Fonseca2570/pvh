@@ -5,17 +5,19 @@ import (
 	"io/ioutil"
 )
 
-var Conf Config
+var App Application
 
-func Init() {
+func Init(app *Application) {
+	conf := Config{}
 	c, err := ioutil.ReadFile("conf.toml")
 	if err != nil {
 		panic(err)
 	}
 
 
-	if _, err = toml.Decode(string(c), &Conf); err != nil {
+	if _, err = toml.Decode(string(c), &conf); err != nil {
 		panic(err)
 	}
 
+	app.Config = conf
 }

@@ -33,4 +33,5 @@ func router(ginEngine *gin.Engine) {
 
 	ginEngine.GET("/alive", alive.Alive)
 	ginEngine.GET("/files/health", files.Health)
+	ginEngine.GET("/compare", files.Compare)
 }
