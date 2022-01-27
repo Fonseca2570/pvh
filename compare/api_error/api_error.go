@@ -2,7 +2,6 @@ package api_error
 
 import "fmt"
 
-//swagger:model Error
 type ApiError struct {
 	Msg string `json:"msg"`
 }

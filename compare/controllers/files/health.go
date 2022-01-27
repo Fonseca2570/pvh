@@ -8,6 +8,7 @@ import (
 )
 
 func Health(c *gin.Context) {
+	// this function will check if the files are in the root folder already
 	files, err := CheckFiles()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err)

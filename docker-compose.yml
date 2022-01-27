@@ -5,14 +5,14 @@ networks:
     driver: bridge
 
 services:
-    notifications:
+    compare:
       build:
         context: ./compare
         dockerfile: Dockerfile
       container_name: "compare"
       restart: on-failure
       ports:
-        - 80:8800
+        - 8800:8800
       networks:
         - pvh_net
-      command: go run main.go
+      command: go run ./cmd/api/.

@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// justs checks if service is alive
 func Alive(c *gin.Context) {
 	c.JSON(http.StatusOK, AliveResponse{
 		"Alive",
